@@ -6,13 +6,13 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { REVIEW_SYSTEM_PROMPT, EXPLAIN_SYSTEM_PROMPT, buildReviewUserMessage, buildExplainUserMessage } from "./prompts";
 
-if (!process.env.GEMINI_API_KEY) {
-    throw new Error(
-      'GEMINI_API_KEY is not set. Add it to .env.local and restart.'
-    )
+function getGenAI() {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        throw new Error("GEMINI_API_KEY is not set. Add it to .env.local or Vercel Environment Variables.");
+    }
+    return new GoogleGenerativeAI(apiKey);
 }
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 /**
  * Initializes a streaming request for code review.
@@ -22,6 +22,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  * @returns An AsyncGenerator yielding string chunks
  */
 export async function streamReview(code: string, language: string, focus?: string[]) {
+    const genAI = getGenAI();
     const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
         systemInstruction: REVIEW_SYSTEM_PROMPT,
@@ -46,6 +47,7 @@ export async function streamReview(code: string, language: string, focus?: strin
  * @returns An AsyncGenerator yielding string chunks
  */
 export async function streamExplain(code: string, selection: string, language: string) {
+    const genAI = getGenAI();
     const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
         systemInstruction: EXPLAIN_SYSTEM_PROMPT,
