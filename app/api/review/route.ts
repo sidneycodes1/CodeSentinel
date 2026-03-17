@@ -6,6 +6,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { streamReview } from "@/lib/gemini";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
     try {
         const { code, language, focus } = await req.json();
