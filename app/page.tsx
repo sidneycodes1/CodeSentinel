@@ -50,7 +50,6 @@ export default function Home() {
         setSelectedLine(null);
 
         try {
-            console.log('[client] fetch started');
             const res = await fetch("/api/review", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -76,7 +75,6 @@ export default function Home() {
             
             rawString += decoder.decode(); // Flush stream
 
-            console.log('[client] stream reading complete');
             
             // Robust JSON extraction
             const jsonMatch = rawString.match(/\{[\s\S]*\}/);
@@ -84,12 +82,10 @@ export default function Home() {
 
             try {
                 const result: ReviewResult = JSON.parse(cleaned);
-                console.log('[client] parsed result:', result);
                 setReviewResult(result);
                 setReviewStatus("populated");
             } catch (err) {
                 console.error('[client] JSON Parse Error:', err);
-                console.log('[client] Fallback: raw response might not be JSON');
                 // Could set a fallback result here or show error toast
                 setReviewStatus("idle");
             }

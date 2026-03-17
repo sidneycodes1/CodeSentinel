@@ -19,8 +19,6 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        console.log('[review] route hit, code length:', code.length);
-        console.log('[review] calling Gemini...');
 
         const stream = await streamReview(code, language, focus);
 
@@ -35,7 +33,6 @@ export async function POST(req: NextRequest) {
                             controller.enqueue(new TextEncoder().encode(text));
                         }
                     }
-                    console.log('[review] stream complete, raw length:', rawLength);
                     controller.close();
                 } catch (error) {
                     controller.error(error);
