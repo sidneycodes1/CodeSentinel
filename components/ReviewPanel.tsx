@@ -76,7 +76,7 @@ export default function ReviewPanel({ status, reviewResult, onLineSelect, langua
                             />
                         ))
                     ) : (
-                        <p className="text-slate-500 text-center py-12 bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <p className="text-slate-500 text-center py-12 surface rounded-xl border-dashed">
                             No issues found. Code looks good!
                         </p>
                     )}
