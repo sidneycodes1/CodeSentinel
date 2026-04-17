@@ -22,36 +22,25 @@ export async function POST(req: NextRequest) {
 
         const stream = await streamReview(code, language, focus);
 
-        const readableStream = new ReadableStream({
-            async start(controller) {
-                let rawLength = 0;
-                try {
-                    for await (const chunk of stream) {
-                        const text = chunk.text();
-                        if (text) {
-                            rawLength += text.length;
-                            controller.enqueue(new TextEncoder().encode(text));
-                        }
-                    }
-                    controller.close();
-                } catch (error) {
-                    controller.error(error);
-                }
-            },
-        });
+        let rawString = "";
+        for await (const chunk of stream) {
+            rawString += chunk.text();
+        }
 
-        return new Response(readableStream, {
-            headers: {
-                "Content-Type": "text/event-stream",
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-            },
-        });
-    } catch (error: any) {
-        console.error("Review route error:", error);
-        return new Response(
-            JSON.stringify({ error: "Review failed", detail: String(error) }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
+        let result;
+        try {
+            result = JSON.parse(rawString);
+        } catch (e) {
+            const match = rawString.match(/\{[\s\S]*\}/);
+            result = JSON.parse(match ? match[0] : "{}");
+        }
+
+        return NextResponse.json(result, { status: 200 });
+    } catch (err: any) {
+        console.error('API route error:', err?.message ?? err);
+        return NextResponse.json(
+            { error: err?.message ?? 'Internal server error' },
+            { status: 500 }
         );
     }
 }
