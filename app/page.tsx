@@ -20,6 +20,7 @@ export default function Home() {
     const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
     const [selectedLine, setSelectedLine] = useState<number | null>(null);
     const [isStreaming, setIsStreaming] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const [popoverState, setPopoverState] = useState<{
         visible: boolean;
@@ -48,6 +49,7 @@ export default function Home() {
         setReviewStatus("loading");
         setReviewResult(null);
         setSelectedLine(null);
+        setError(null);
 
         try {
             const res = await fetch("/api/review", {
@@ -58,7 +60,8 @@ export default function Home() {
 
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
-                console.error('API error:', err);
+                console.error('API error:', err?.message ?? JSON.stringify(err));
+                setError(err?.message ?? 'Something went wrong. Please try again.');
                 return;
             }
             if (!res.body) throw new Error("No response body");
@@ -90,8 +93,9 @@ export default function Home() {
                 setReviewStatus("idle");
             }
             
-        } catch (error) {
-            console.error("Review Error:", error);
+        } catch (error: any) {
+            console.error("API error:", error?.message ?? JSON.stringify(error));
+            setError(error?.message ?? 'Something went wrong. Please try again.');
             setReviewStatus("idle");
         } finally {
             setIsStreaming(false);
@@ -104,6 +108,7 @@ export default function Home() {
         setReviewStatus("idle");
         setReviewResult(null);
         setSelectedLine(null);
+        setError(null);
     };
 
     useEffect(() => {
@@ -140,6 +145,12 @@ export default function Home() {
                 code={code}
                 isStreaming={isStreaming}
             />
+
+            {error && (
+                <div className="bg-red-500/20 text-red-500 p-2 text-sm text-center border-b border-red-500/30">
+                    {error}
+                </div>
+            )}
 
             <div className="flex flex-1 overflow-hidden md:flex-row flex-col">
                 {/* Left Panel: Editor */}
