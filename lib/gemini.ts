@@ -6,12 +6,18 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { REVIEW_SYSTEM_PROMPT, EXPLAIN_SYSTEM_PROMPT, buildReviewUserMessage, buildExplainUserMessage } from "./prompts";
 
+let genAIInstance: GoogleGenerativeAI | null = null;
+
 function getGenAI() {
+    if (genAIInstance) return genAIInstance;
+    
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
         throw new Error("GEMINI_API_KEY is not set. Add it to .env.local or Vercel Environment Variables.");
     }
-    return new GoogleGenerativeAI(apiKey);
+    
+    genAIInstance = new GoogleGenerativeAI(apiKey);
+    return genAIInstance;
 }
 
 /**
